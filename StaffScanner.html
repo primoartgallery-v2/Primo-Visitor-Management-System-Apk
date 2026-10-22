@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Primo Art Gallery | Staff Scanner</title>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --ink: #17130f;
+      --cream: #f8f4ed;
+      --gold: #b68a42;
+      --wine: #762d32;
+      --green: #287247;
+      --danger: #a93232;
+      --shadow: 0 20px 55px rgba(32, 23, 13, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 10% 10%, rgba(183, 139, 66, 0.16), transparent 32%),
+        radial-gradient(circle at 90% 95%, rgba(118, 45, 50, 0.12), transparent 38%),
+        var(--cream);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app-shell {
+      width: min(100%, 560px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: max(22px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .brand {
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 13px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(26px, 7vw, 34px);
+      font-weight: normal;
+      letter-spacing: 0.04em;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: #6d6256;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid rgba(183, 139, 66, 0.35);
+      border-radius: 20px;
+      background: rgba(255, 253, 249, 0.94);
+      box-shadow: var(--shadow);
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .content {
+      padding: 28px 24px;
+    }
+
+    h2 {
+      margin: 0 0 9px;
+      font-size: 26px;
+      font-weight: normal;
+    }
+
+    .subtext {
+      margin: 0 0 24px;
+      color: #6d6256;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .pin-input {
+      width: 100%;
+      height: 58px;
+      padding: 0 16px;
+      border: 1px solid #cfc3b1;
+      border-radius: 12px;
+      outline: none;
+      background: #fffdf9;
+      color: var(--ink);
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      letter-spacing: 0.45em;
+      text-align: center;
+    }
+
+    .pin-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(183, 139, 66, 0.14);
+    }
+
+    .button-row {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .button {
+      min-height: 52px;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+    }
+
+    .button:active {
+      transform: scale(0.98);
+    }
+
+    .button-primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .button-secondary {
+      border: 1px solid #cfc3b1;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .error-message {
+      min-height: 20px;
+      margin-top: 12px;
+      color: var(--danger);
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .scanner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .scanner-header h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f3ede3;
+      color: #665946;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .status-pill.scanning .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(40, 114, 71, 0.13);
+    }
+
+    #reader {
+      width: 100%;
+      min-height: 250px;
+      overflow: hidden;
+      border: 1px solid #d9ccb7;
+      border-radius: 14px;
+      background: #1c1a18;
+    }
+
+    #reader video {
+      object-fit: cover !important;
+    }
+
+    #reader__dashboard {
+      padding: 8px !important;
+      color: #fff !important;
+      font-family: Arial, sans-serif !important;
+    }
+
+    .scanner-message {
+      min-height: 46px;
+      margin: 16px 0 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #f8f3ea;
+      color: #665946;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .scanner-message.error {
+      background: #f9e8e7;
+      color: var(--danger);
+    }
+
+    .result-content {
+      padding: 38px 24px 28px;
+      text-align: center;
+    }
+
+    .result-icon {
+      width: 74px;
+      height: 74px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 35px;
+      font-weight: bold;
+    }
+
+    .success {
+      background: var(--green);
+    }
+
+    .already {
+      background: var(--gold);
+    }
+
+    .invalid,
+    .system-error {
+      background: var(--wine);
+    }
+
+    .result-message {
+      margin: 0;
+      color: #6d6256;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .visitor-id {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      background: #f3ede3;
+      color: #5d4931;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .footer {
+      margin-top: 22px;
+      color: #897b6b;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app-shell">
+    <header class="brand">
+      <div class="brand-mark"><img src="data:image/jpeg;base64,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" alt="Primo Art Gallery" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+      <h1>Primo Art Gallery</h1>
+      <p>Visitor Management</p>
+    </header>
+
+    <section class="card">
+      <div id="loginScreen" class="screen">
+        <div class="content">
+          <h2>Staff access</h2>
+          <p class="subtext">Enter your staff PIN to open the visitor check-in scanner.</p>
+
+          <input id="pinInput" class="pin-input" type="password" inputmode="numeric"
+            maxlength="4" autocomplete="off" placeholder="••••" aria-label="Staff PIN">
+
+          <div id="loginError" class="error-message"></div>
+
+          <div class="button-row">
+            <button id="loginButton" class="button button-primary" type="button">Open Scanner</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="scannerScreen" class="screen">
+        <div class="content">
+          <div class="scanner-header">
+            <h2>Scan visitor QR</h2>
+            <div id="scannerStatus" class="status-pill">
+              <span class="status-dot"></span>
+              <span id="scannerStatusText">Preparing camera</span>
+            </div>
+          </div>
+
+          <div id="reader"></div>
+
+          <p id="scannerMessage" class="scanner-message">
+            Please allow camera access to scan visitor QR codes.
+          </p>
+
+          <div class="button-row">
+            <button id="retryCameraButton" class="button button-primary" type="button" hidden>
+              Try Camera Again
+            </button>
+            <button id="scannerLogoutButton" class="button button-secondary" type="button">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="resultScreen" class="screen">
+        <div class="result-content">
+          <div id="resultIcon" class="result-icon success">✓</div>
+          <h2 id="resultTitle">Visitor checked in</h2>
+          <p id="resultMessage" class="result-message"></p>
+          <div id="resultVisitorId" class="visitor-id" hidden></div>
+
+          <div class="button-row">
+            <button id="scanNextButton" class="button button-primary" type="button">
+              Scan Next Visitor
+            </button>
+            <button id="resultLogoutButton" class="button button-secondary" type="button">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">Primo Art Gallery · Staff Check-In</footer>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const STAFF_PIN = '2026';
+      const LOGIN_STORAGE_KEY = 'primoGalleryStaffScannerLoggedIn';
+      const VISITOR_ID_PATTERN = /\bPAG-2026-[A-Z0-9]{4,}\b/i;
+
+      let html5QrCode = null;
+      let scannerRunning = false;
+      let processingScan = false;
+      let permissionStatus = null;
+      let permissionTimer = null;
+
+      const elements = {
+        loginScreen: document.getElementById('loginScreen'),
+        scannerScreen: document.getElementById('scannerScreen'),
+        resultScreen: document.getElementById('resultScreen'),
+        pinInput: document.getElementById('pinInput'),
+        loginButton: document.getElementById('loginButton'),
+        loginError: document.getElementById('loginError'),
+        scannerStatus: document.getElementById('scannerStatus'),
+        scannerStatusText: document.getElementById('scannerStatusText'),
+        scannerMessage: document.getElementById('scannerMessage'),
+        retryCameraButton: document.getElementById('retryCameraButton'),
+        scannerLogoutButton: document.getElementById('scannerLogoutButton'),
+        resultIcon: document.getElementById('resultIcon'),
+        resultTitle: document.getElementById('resultTitle'),
+        resultMessage: document.getElementById('resultMessage'),
+        resultVisitorId: document.getElementById('resultVisitorId'),
+        scanNextButton: document.getElementById('scanNextButton'),
+        resultLogoutButton: document.getElementById('resultLogoutButton')
+      };
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function showScreen(name) {
+        elements.loginScreen.classList.toggle('active', name === 'login');
+        elements.scannerScreen.classList.toggle('active', name === 'scanner');
+        elements.resultScreen.classList.toggle('active', name === 'result');
+      }
+
+      function isLoggedIn() {
+        return localStorage.getItem(LOGIN_STORAGE_KEY) === 'true';
+      }
+
+      function setLoggedIn(value) {
+        if (value) {
+          localStorage.setItem(LOGIN_STORAGE_KEY, 'true');
+        } else {
+          localStorage.removeItem(LOGIN_STORAGE_KEY);
+        }
+      }
+
+      function setScannerStatus(text, active) {
+        elements.scannerStatusText.textContent = text;
+        elements.scannerStatus.classList.toggle('scanning', Boolean(active));
+      }
+
+      function setScannerMessage(text, isError) {
+        elements.scannerMessage.textContent = text;
+        elements.scannerMessage.classList.toggle('error', Boolean(isError));
+      }
+
+      async function requestCameraPermission() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera access is not supported by this browser.');
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+        stream.getTracks().forEach(function (track) {
+          track.stop();
+        });
+      }
+
+      async function stopScanner() {
+        if (!html5QrCode || !scannerRunning) {
+          return;
+        }
+
+        try {
+          await html5QrCode.stop();
+        } catch (error) {
+          console.warn('Scanner stop warning:', error);
+        }
+
+        scannerRunning = false;
+      }
+
+      function getPreferredCamera(cameras) {
+        if (!cameras || cameras.length === 0) {
+          return null;
+        }
+
+        const rearCamera = cameras.find(function (camera) {
+          return /back|rear|environment|external/i.test(camera.label || '');
+        });
+
+        return rearCamera || cameras[cameras.length - 1] || cameras[0];
+      }
+
+      async function startScanner() {
+        if (!isLoggedIn() || scannerRunning || processingScan) {
+          return;
+        }
+
+        showScreen('scanner');
+        elements.retryCameraButton.hidden = true;
+        setScannerStatus('Starting camera', false);
+        setScannerMessage('Opening camera…', false);
+
+        try {
+          if (typeof Html5Qrcode === 'undefined') {
+            throw new Error('QR scanner library could not load. Check your internet connection and reload.');
+          }
+
+          await requestCameraPermission();
+
+          if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode('reader');
+          }
+
+          const cameras = await Html5Qrcode.getCameras();
+          const selectedCamera = getPreferredCamera(cameras);
+
+          if (!selectedCamera) {
+            throw new Error('No camera found on this device.');
+          }
+
+          const config = {
+            fps: 10,
+            qrbox: { width: 240, height: 240 },
+            aspectRatio: 1.0,
+            disableFlip: false
+          };
+
+          await html5QrCode.start(
+            selectedCamera.id,
+            config,
+            onQrCodeScanned,
+            function () {}
+          );
+
+          scannerRunning = true;
+          setScannerStatus('Scanner active', true);
+          setScannerMessage('Align the visitor QR code inside the camera frame.', false);
+        } catch (error) {
+          scannerRunning = false;
+          handleCameraError(error);
+        }
+      }
+
+      function handleCameraError(error) {
+        const errorName = String(error && error.name ? error.name : '');
+        const errorMessage = String(error && error.message ? error.message : error || '');
+
+        console.error('Camera error:', error);
+        setScannerStatus('Camera unavailable', false);
+        elements.retryCameraButton.hidden = false;
+
+        if (
+          errorName === 'NotAllowedError' ||
+          /permission|denied|notallowed/i.test(errorMessage)
+        ) {
+          setScannerMessage(
+            'Camera permission is required. Click the camera icon beside the address bar, allow access, then press Try Camera Again.',
+            true
+          );
+          watchCameraPermission();
+          return;
+        }
+
+        if (/no camera|notfound|not found/i.test(errorMessage)) {
+          setScannerMessage('No camera was found. Check that your device camera is available.', true);
+          return;
+        }
+
+        setScannerMessage('Camera could not start: ' + errorMessage, true);
+      }
+
+      async function watchCameraPermission() {
+        if (!navigator.permissions || !navigator.permissions.query) {
+          return;
+        }
+
+        try {
+          permissionStatus = await navigator.permissions.query({ name: 'camera' });
+
+          permissionStatus.onchange = function () {
+            if (permissionStatus.state === 'granted' && isLoggedIn() && !scannerRunning) {
+              startScanner();
+            }
+          };
+
+          if (permissionTimer) {
+            clearInterval(permissionTimer);
+          }
+
+          permissionTimer = setInterval(function () {
+            if (
+              permissionStatus &&
+              permissionStatus.state === 'granted' &&
+              isLoggedIn() &&
+              !scannerRunning &&
+              !processingScan
+            ) {
+              startScanner();
+            }
+          }, 1500);
+        } catch (error) {
+          console.log('Camera permission monitoring is unavailable.');
+        }
+      }
+
+      function extractVisitorId(decodedText) {
+        const raw = String(decodedText || '').trim();
+        const directMatch = raw.match(VISITOR_ID_PATTERN);
+
+        if (directMatch) {
+          return directMatch[0].toUpperCase();
+        }
+
+        try {
+          const url = new URL(raw);
+          const id = url.searchParams.get('id');
+
+          if (id && VISITOR_ID_PATTERN.test(id)) {
+            return id.match(VISITOR_ID_PATTERN)[0].toUpperCase();
+          }
+        } catch (error) {
+          const queryMatch = raw.match(/[?&]id=(PAG-2026-[A-Z0-9]{4,})\b/i);
+
+          if (queryMatch) {
+            return queryMatch[1].toUpperCase();
+          }
+        }
+
+        return null;
+      }
+
+      async function onQrCodeScanned(decodedText) {
+        if (processingScan) {
+          return;
+        }
+
+        processingScan = true;
+        const visitorId = extractVisitorId(decodedText);
+
+        await stopScanner();
+
+        if (!visitorId) {
+          showResult(
+            'invalid',
+            '',
+            'This QR code does not contain a valid Primo Art Gallery visitor ID.'
+          );
+          return;
+        }
+
+        setScannerStatus('Checking in', false);
+
+        google.script.run
+          .withSuccessHandler(function (response) {
+            const result = response || {};
+            const statusText = String(
+              result.status || result.result || result.message || ''
+            ).toLowerCase();
+
+            let type = 'system-error';
+
+            if (result.success === true || statusText.includes('success') || statusText.includes('checked in')) {
+              type = statusText.includes('already') ? 'already' : 'success';
+            } else if (statusText.includes('already')) {
+              type = 'already';
+            } else if (statusText.includes('invalid') || statusText.includes('not found')) {
+              type = 'invalid';
+            }
+
+            showResult(
+              type,
+              visitorId,
+              result.message || defaultMessage(type, visitorId)
+            );
+          })
+          .withFailureHandler(function (error) {
+            console.error('Check-in error:', error);
+            showResult(
+              'system-error',
+              visitorId,
+              'Unable to complete the check-in. Please try again.'
+            );
+          })
+          .checkInVisitor(visitorId);
+      }
+
+      function defaultMessage(type, visitorId) {
+        if (type === 'success') {
+          return 'Visitor ' + visitorId + ' has been checked in successfully.';
+        }
+
+        if (type === 'already') {
+          return 'This visitor has already been checked in.';
+        }
+
+        if (type === 'invalid') {
+          return 'No visitor record was found for this QR code.';
+        }
+
+        return 'An unexpected system error occurred.';
+      }
+
+      function showResult(type, visitorId, message) {
+        const details = {
+          success: { icon: '✓', title: 'Visitor checked in', className: 'success' },
+          already: { icon: '!', title: 'Already checked in', className: 'already' },
+          invalid: { icon: '×', title: 'Invalid visitor', className: 'invalid' },
+          'system-error': { icon: '!', title: 'System error', className: 'system-error' }
+        };
+
+        const setting = details[type] || details['system-error'];
+
+        elements.resultIcon.className = 'result-icon ' + setting.className;
+        elements.resultIcon.textContent = setting.icon;
+        elements.resultTitle.textContent = setting.title;
+        elements.resultMessage.innerHTML = escapeHtml(message);
+
+        if (visitorId) {
+          elements.resultVisitorId.textContent = visitorId;
+          elements.resultVisitorId.hidden = false;
+        } else {
+          elements.resultVisitorId.hidden = true;
+        }
+
+        showScreen('result');
+      }
+
+      async function scanNextVisitor() {
+        processingScan = false;
+        await startScanner();
+      }
+
+      async function logout() {
+        if (permissionTimer) {
+          clearInterval(permissionTimer);
+          permissionTimer = null;
+        }
+
+        processingScan = false;
+        await stopScanner();
+
+        setLoggedIn(false);
+        elements.pinInput.value = '';
+        elements.loginError.textContent = '';
+        showScreen('login');
+        elements.pinInput.focus();
+      }
+
+      async function login() {
+        if (elements.pinInput.value.trim() !== STAFF_PIN) {
+          elements.loginError.textContent = 'Incorrect PIN. Please try again.';
+          elements.pinInput.focus();
+          return;
+        }
+
+        elements.loginError.textContent = '';
+        setLoggedIn(true);
+        await watchCameraPermission();
+        await startScanner();
+      }
+
+      elements.loginButton.addEventListener('click', login);
+
+      elements.pinInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          login();
+        }
+      });
+
+      elements.retryCameraButton.addEventListener('click', startScanner);
+      elements.scanNextButton.addEventListener('click', scanNextVisitor);
+      elements.scannerLogoutButton.addEventListener('click', logout);
+      elements.resultLogoutButton.addEventListener('click', logout);
+
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && isLoggedIn() && !scannerRunning && !processingScan) {
+          startScanner();
+        }
+      });
+
+      if (isLoggedIn()) {
+        watchCameraPermission();
+        startScanner();
+      } else {
+        showScreen('login');
+        elements.pinInput.focus();
+      }
+    })();
+  </script>
+</body>
+</html>

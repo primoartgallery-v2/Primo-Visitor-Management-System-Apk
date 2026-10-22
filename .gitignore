@@ -1,0 +1,11 @@
+.clasp.json
+node_modules/
+.env
+.env.*
+*.log
+.gradle/
+**/build/
+*.iml
+.idea/
+local.properties
+.kotlin/

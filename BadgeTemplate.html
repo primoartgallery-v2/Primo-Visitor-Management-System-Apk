@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<base target="_top">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<style>
+
+body{
+
+margin:0;
+
+padding:0;
+
+background:#f4f1eb;
+
+font-family:Arial, sans-serif;
+
+}
+
+
+
+.badge{
+
+width:380px;
+
+margin:30px auto;
+
+background:white;
+
+border-radius:20px;
+
+overflow:hidden;
+
+box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+border:2px solid #a46b28;
+
+}
+
+
+
+.header{
+
+background:#800000;
+
+color:white;
+
+text-align:center;
+
+padding:25px 15px;
+
+}
+
+
+
+.logo{
+
+font-size:14px;
+
+letter-spacing:4px;
+
+font-weight:bold;
+
+}
+
+
+
+.event{
+
+font-size:20px;
+
+margin-top:12px;
+
+}
+
+
+
+.content{
+
+padding:25px;
+
+text-align:center;
+
+}
+
+
+
+.visitor-name{
+
+font-size:28px;
+
+font-weight:bold;
+
+color:#251f1a;
+
+margin:15px 0;
+
+}
+
+
+
+.label{
+
+color:#756b63;
+
+font-size:13px;
+
+}
+
+
+
+.visitor-id{
+
+font-size:22px;
+
+font-weight:bold;
+
+color:#a46b28;
+
+margin:10px 0 20px;
+
+}
+
+
+
+.qr{
+
+margin:20px auto;
+
+}
+
+
+
+.qr img{
+
+width:180px;
+
+height:180px;
+
+}
+
+
+
+.details{
+
+background:#f8f5f0;
+
+padding:15px;
+
+border-radius:12px;
+
+font-size:14px;
+
+line-height:1.7;
+
+}
+
+
+
+.footer{
+
+background:#251f1a;
+
+color:white;
+
+text-align:center;
+
+padding:15px;
+
+font-size:12px;
+
+}
+
+
+
+.print-btn{
+
+display:block;
+
+width:200px;
+
+margin:20px auto;
+
+padding:12px;
+
+background:#a46b28;
+
+color:white;
+
+border:none;
+
+border-radius:8px;
+
+font-size:15px;
+
+cursor:pointer;
+
+}
+
+
+
+@media print{
+
+
+.print-btn{
+
+display:none;
+
+}
+
+
+body{
+
+background:white;
+
+}
+
+
+.badge{
+
+box-shadow:none;
+
+margin:auto;
+
+}
+
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="badge">
+
+
+
+<div class="header">
+
+
+<div class="logo">
+
+PRIMO ART GALLERY
+
+</div>
+
+
+<div class="event">
+
+<?= config.EVENT_NAME ?>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="content">
+
+
+<div class="label">
+
+VISITOR NAME
+
+</div>
+
+
+<div class="visitor-name">
+
+<?= visitor.name ?>
+
+</div>
+
+
+
+<div class="label">
+
+VISITOR ID
+
+</div>
+
+
+<div class="visitor-id">
+
+<?= visitor.visitorId ?>
+
+</div>
+
+
+
+
+
+<div class="qr">
+
+
+<img 
+
+src="<?= visitor.qrCode ?>"
+
+alt="Visitor QR Code">
+
+
+</div>
+
+
+
+
+
+<div class="details">
+
+
+<strong>Venue</strong><br>
+
+<?= config.VENUE ?>
+
+
+<br><br>
+
+
+<strong>Date</strong><br>
+
+<?= config.EVENT_DATE ?>
+
+
+<br><br>
+
+
+<strong>Time</strong><br>
+
+<?= config.EVENT_TIME ?>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+<div class="footer">
+
+
+<?= config.WEBSITE ?>
+
+<br>
+
+<?= config.PHONE ?>
+
+
+</div>
+
+
+
+</div>
+
+
+
+<button
+
+class="print-btn"
+
+onclick="window.print()">
+
+Print Badge
+
+</button>
+
+
+
+</body>
+
+</html>

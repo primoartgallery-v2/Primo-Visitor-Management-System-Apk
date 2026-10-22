@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+</head>
+
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:30px 0;">
+
+<tr>
+<td align="center">
+
+<table width="620" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;">
+
+<!-- Header -->
+
+<tr>
+
+<td style="background:#6d001a;padding:30px;text-align:center;color:#fff;">
+
+<h1 style="margin:0;font-size:32px;">
+<?= config.ORGANIZER ?>
+</h1>
+
+<p style="margin-top:10px;font-size:18px;">
+<?= config.EVENT_NAME ?>
+</p>
+
+</td>
+
+</tr>
+
+<!-- Body -->
+
+<tr>
+
+<td style="padding:35px;">
+
+<p style="font-size:18px;">
+Dear <b><?= visitor.name ?></b>,
+</p>
+
+<p style="font-size:16px;line-height:28px;">
+
+Thank you for registering for our exhibition.
+
+Your visitor registration has been successfully completed.
+
+Please present the QR Code below at the entrance.
+
+</p>
+
+<div style="text-align:center;margin:40px 0;">
+
+<img
+src="<?= visitor.qrCode ?>"
+width="260"
+style="border:10px solid #f4f4f4;">
+
+</div>
+
+<div style="text-align:center;">
+
+<p style="font-size:15px;color:#777;margin-bottom:5px;">
+
+Visitor ID
+
+</p>
+
+<h2 style="margin:0;color:#800000;">
+
+<?= visitor.visitorId ?>
+
+</h2>
+
+</div>
+
+<hr style="margin:35px 0;">
+
+<table width="100%" cellpadding="8">
+
+<tr>
+
+<td><b>Event</b></td>
+
+<td><?= config.EVENT_NAME ?></td>
+
+</tr>
+
+<tr>
+
+<td><b>Date</b></td>
+
+<td><?= config.EVENT_DATE ?></td>
+
+</tr>
+
+<tr>
+
+<td><b>Time</b></td>
+
+<td><?= config.EVENT_TIME ?></td>
+
+</tr>
+
+<tr>
+
+<td><b>Venue</b></td>
+
+<td><?= config.VENUE ?></td>
+
+</tr>
+
+</table>
+
+<p style="margin-top:35px;font-size:15px;line-height:26px;">
+
+Please keep this email safe.
+
+Your QR Code will be scanned by our staff during entry.
+
+</p>
+
+</td>
+
+</tr>
+
+<!-- Footer -->
+
+<tr>
+
+<td style="background:#222;color:#eee;padding:25px;text-align:center;font-size:14px;">
+
+<b><?= config.ORGANIZER ?></b>
+
+<br><br>
+
+Website:
+<?= config.WEBSITE ?>
+
+<br>
+
+Phone:
+<?= config.PHONE ?>
+
+<br>
+
+Email:
+<?= config.EMAIL ?>
+
+</td>
+
+</tr>
+
+</table>
+
+</td>
+</tr>
+
+</table>
+
+</body>
+
+</html>
